@@ -272,13 +272,13 @@ class Disc(keras.Model):
 
         x = self.conv_0(x)
         x = self.conv_1(x)
-        x = self.bn_1(x, is_training=is_training)
+        x = self.bn_1(x)
 
         x = self.conv_2(x)
-        x = self.bn_2(x, is_training=is_training)
+        x = self.bn_2(x)
 
         x = self.conv_3(x)
-        x = self.bn_3(x, is_training=is_training)
+        x = self.bn_3(x)
 
         x = self.conv_4(x)
 
@@ -355,13 +355,13 @@ class Encoder(keras.Model):
         x = self.conv_0(inputs)
 
         x = self.conv_1(x)
-        x = self.bn_1(x, is_training=is_training)
+        x = self.bn_1(x)
 
         x = self.conv_2(x)
-        x = self.bn_2(x, is_training=is_training)
+        x = self.bn_2(x)
 
         x = self.conv_3(x)
-        x = self.bn_3(x, is_training=is_training)
+        x = self.bn_3(x)
 
         if y is not None:
             x = tf.concat([x, y], 3)
@@ -435,13 +435,13 @@ class Encoder(keras.Model):
         x = self.conv_0(inputs)
 
         x = self.conv_1(x)
-        x = self.bn_1(x, is_training=is_training)
+        x = self.bn_1(x)
 
         x = self.conv_2(x)
-        x = self.bn_2(x, is_training=is_training)
+        x = self.bn_2(x)
 
         x = self.conv_3(x)
-        x = self.bn_3(x, is_training=is_training)
+        x = self.bn_3(x)
 
         if y is not None:
             x = tf.concat([x, y], 3)
@@ -516,17 +516,17 @@ class LayoutNet(keras.Model):
         """
         config = self.config
 
-        category = tf.one_hot(y, depth=config.y_dim)
-        textratio = tf.one_hot(tr, depth=config.tr_dim)
-        imgratio = tf.one_hot(ir, depth=config.ir_dim)
+        category = tf.one_hot(tf.cast(y, dtype=tf.int32), depth=config.y_dim)
+        textratio = tf.one_hot(tf.cast(tr, dtype=tf.int32), depth=config.tr_dim)
+        imgratio = tf.one_hot(tf.cast(ir, dtype=tf.int32), depth=config.ir_dim)
         x_labeltmp = tf.concat([category, textratio, imgratio], 1)
 
-        var_label = self.embeddingSemvec(x_labeltmp, is_training)
-        img_fea = self.embeddingImg(img, is_training)
-        tex_fea = self.embeddingTxt(tex, is_training)
+        var_label = self.embeddingSemvec(x_labeltmp, is_training=is_training)
+        img_fea = self.embeddingImg(img, is_training=is_training)
+        tex_fea = self.embeddingTxt(tex, is_training=is_training)
 
         y_label = self.embeddingFusion(var_label, img_fea, tex_fea,
-                                       is_training)
+                                       is_training=is_training)
 
         # to apply y to encoder E and discriminator D
         # first duplicate y along spatial dimensions
